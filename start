@@ -45,3 +45,9 @@ def show_tables(cursor):
     for i in table_names:
         table.append(i[0])
     print(table)
+
+def search_table(cursor, name):
+    cursor.execute((f"SELECT * FROM {name}"))
+    result = cursor.fetchall()
+    for i in result:
+        print(i)
