@@ -15,5 +15,17 @@ def auth_check(username, password, database):
             database = database)
             crs = cnct.cursor(buffered=True)
             break
-
         
+        except Error as error:
+                    print(error)
+                    if error.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                        print("Incorrect Creditials")
+                        username = input("Re-enter the username")
+                        password = input("Re-enter the password")
+                        continue
+                    elif error.errno == errorcode.ER_BAD_DB_ERROR:
+                        print("Invalid Database")
+                        database = input("Re-enter the database")
+                    else:
+                        print(f"Error: '{error}'")
+                        return cnct
