@@ -51,3 +51,67 @@ def search_table(cursor, name):
     result = cursor.fetchall()
     for i in result:
         print(i)
+
+def search(cursor):
+    show_tables(cursor)
+    table = input("Enter the table you would like to view: ")
+    search_table(cursor, table)
+    repeat = input("Do you want to view another table (Y/N): ")
+    if repeat == "Y":
+        search(cursor)
+
+def add_item(cursor, connection):
+    show_tables(cursor)
+    table = input("Enter the table to add to: ")
+    cursor.execute(f"DESCRIBE {table}")
+    columns = [column[0] for column in cursor.fetchall()]
+    val = []
+    for i in columns:
+        in_val = input(f"Enter the value for column {i}: ")
+        val.append(in_val)
+    cursor.execute(f"INSERT into {table} values {tuple(val)}")
+    connection.commit()
+    cursor.execute(f"SELECT * FROM {table}")
+    print("Data has been added")
+    search_table(cursor, table)
+
+def update_item(cursor):
+    show_tables(cursor)
+    table = input("Enter the table to update: ")
+    cursor.execute(f"DESCRIBE {table}")
+    columns = [column[0] for column in cursor.fetchall()]
+    print(columns)
+    attribute = input("Enter the column to update: ")
+    val = input("Enter the updated value: ")
+    reference_col = input("Enter the column used for reference: ")
+    reference_val = input("Enter the value used for reference: ")
+    cursor.execute(f"UPDATE {table} SET {attribute} = {val} WHERE {reference_col} = '{reference_val}'")
+    search_table(cursor,table)
+
+def delete_item(cursor, connection):
+    show_tables(cursor)
+    table = input("Enter the table to update: ")
+    cursor.execute(f"DESCRIBE {table}")
+    columns = [column[0] for column in cursor.fetchall()]
+    print(columns)
+    attribute = input("Enter the column to update: ")
+    val = input("Enter the value to be deleted: ")
+    cursor.execute(f"DELETE FROM {table} WHERE {attribute} = '{val}'")
+    connection.commit
+    search_table(cursor, table)
+
+def read_file(cursor, connection):
+    path = input("Enter the file path: ")
+    with open(path, "r") as file:
+        data = file.readlines()
+
+    for i in data:
+        cursor.execute(i)
+
+        words = i.split(" ")
+        if 'SELECT' in words:
+            result = cursor.fetchall()
+            for i in result:
+                print(i)
+        if 'INSERT' in words or "DELETE" in words:
+            connection.commit()
