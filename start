@@ -1,0 +1,6 @@
+import mysql.connector
+from mysql.connector import Error, errorcode
+
+user = "admin"
+password = "admin"
+database = "museum"
