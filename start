@@ -115,3 +115,120 @@ def read_file(cursor, connection):
                 print(i)
         if 'INSERT' in words or "DELETE" in words:
             connection.commit()
+
+def edit_users(connection):
+    cursor = connection.cursor()
+    options = {1:"add a user", 2:"update a users privileges", 3:"delete a user"}
+    print(options)
+    userchoice = int(input("Enter the number: "))
+
+
+    if userchoice == 1: 
+        username = input("Enter your username: ")
+        password = input("Enter the password: ")
+        access = ["admin", "employee", "guest"]
+        print(access)
+        role = input("Enter the role: ")
+        cursor.execute(f"CREATE USER '{username}'@'localhost' IDENTIFIED BY '{password}';")
+        if role == 'admin':
+            cursor.execute(f"GRANT ALL PRIVILEGES ON *.* TO '{username}'@'localhost' WITH GRANT OPTION;")
+        elif role == 'employee':
+            cursor.execute(f"GRANT SELECT,INSERT,UPDATE ON museum.* TO '{username}'@'localhost' ")
+        elif role == 'guest':
+            cursor.execute(f"GRANT SELECT ON museum.* TO '{username}'@'localhost' ")
+
+    elif userchoice == 2:
+        username = input("Enter the username: ")
+        options = ['password', 'access']
+        print(options)
+        choice = input("What would you like to update: ")
+        if choice == 'access':
+            access = ["admin", "employee", "guest"]
+            print(access)
+            role = input("Enter the role: ")
+            if role == 'admin':
+                cursor.execute(f"REVOKE ALL PRIVILEGES ON *.* FROM '{username}'@'localhost';")
+                cursor.execute(f"GRANT ALL PRIVILEGES ON *.* TO '{username}'@'localhost' WITH GRANT OPTION;")
+            elif role == 'employee':
+                cursor.execute(f"REVOKE ALL PRIVILEGES ON *.* FROM '{username}'@'localhost';")
+                cursor.execute(f"GRANT SELECT,INSERT,UPDATE ON museum.* TO '{username}'@'localhost';")
+            elif role == 'guest':
+                cursor.execute(f"REVOKE ALL PRIVILEGES ON *.* FROM '{username}'@'localhost';")
+                cursor.execute(f"GRANT SELECT ON museum.* TO '{username}'@'localhost' ")
+        elif choice == 'password':
+            password = input("Enter the new password: ")
+            cursor.execute(f"SET PASSWORD FOR '{username}'@'hostname' = '{password}';")
+
+            
+
+    elif userchoice == 3:
+        username = input("Enter the username: ")
+        cursor.execute(f"DROP USER {username}@localhost")
+
+def script(cursor, connection):
+    command = input("Enter the command you like execute: ")
+    cursor.execute(command)
+
+    words = (command.lower()).split()
+
+    if 'select' in words:
+        result = cursor.fetchall()
+        for i in result:
+            print(i)
+    elif 'insert' in words or 'delete' in words or 'update' in words:
+        connection.commit()
+
+def admin_actions(cursor, connection):
+    actions = {1:"View tables", 2:"Add data", 3:"Update data", 4:"Delete data", 5:"read file", 6:"manual script", 7:"edit users"}
+    print(actions)
+    user_selection = int(input("Enter the number coressponding to your choice: "))
+
+    if user_selection == 1:
+        search(cursor)
+    
+    elif user_selection ==2:
+        add_item(cursor, connection)
+    
+    elif user_selection ==3:
+        update_item(cursor)
+    
+    elif user_selection == 4:
+        delete_item(cursor, connection)
+
+    elif user_selection == 5:
+        read_file(cursor, connection)
+
+    elif user_selection == 6:
+        script(cursor, connection)
+
+    elif user_selection == 7:
+        edit_users(connection)
+
+def employee_actions(cursor, connection):
+    actions = {1:"View tables", 2:"Add data", 3:"Update data", 4:"Delete data"}
+    user_selection = int(input("Enter the number coressponding to your choice: "))
+
+    if user_selection == 1:
+        search(cursor)
+    
+    elif user_selection ==2:
+        add_item(cursor, connection)
+    
+    elif user_selection ==3:
+        update_item(cursor)
+    
+    elif user_selection == 4:
+        delete_item(cursor, connection)
+
+
+print("Welcome the museum! choose 1 to log-in as staff or 0 to continue as guest.")
+user_prompt = int(input("Enter your choice: "))
+
+if user_prompt == 0:
+    auth_check("guest", "guest", database)
+
+elif user_prompt == 1:
+    Username = input("Enter your username: ")
+    Password = input("Enter your password: ")
+    auth_check(Username, Password, database)
+    
