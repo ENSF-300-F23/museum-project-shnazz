@@ -4,3 +4,16 @@ from mysql.connector import Error, errorcode
 user = "admin"
 password = "admin"
 database = "museum"
+
+def auth_check(username, password, database):
+    while True:
+        try:
+            cnct = mysql.connector.connect(
+            host = "localhost",
+            user = username,
+            password = password,
+            database = database)
+            crs = cnct.cursor(buffered=True)
+            break
+
+        
