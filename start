@@ -15,7 +15,7 @@ def auth_check(username, password, database):
             database = database)
             crs = cnct.cursor(buffered=True)
             break
-        
+
         except Error as error:
                     print(error)
                     if error.errno == errorcode.ER_ACCESS_DENIED_ERROR:
@@ -29,3 +29,12 @@ def auth_check(username, password, database):
                     else:
                         print(f"Error: '{error}'")
                         return cnct
+    
+    crs.execute(f"SHOW GRANTS FOR {username}@localhost")
+    grants = crs.fetchall()
+    output = grants[0][0].split(",")
+    if " CREATE" in output:
+        admin_actions(crs,cnct)
+    elif " INSERT" in output:
+        employee_actions(crs, cnct)
+
