@@ -38,3 +38,10 @@ def auth_check(username, password, database):
     elif " INSERT" in output:
         employee_actions(crs, cnct)
 
+def show_tables(cursor):
+    table = []
+    cursor.execute("SHOW TABLES;")
+    table_names = cursor.fetchall()
+    for i in table_names:
+        table.append(i[0])
+    print(table)
